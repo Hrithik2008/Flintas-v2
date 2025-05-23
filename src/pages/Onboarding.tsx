@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, PlusCircle, XCircle } from 'lucide-react'; // Adding an icon for visual interest
-import { useStore } from '../lib/store';
+import { Rocket, PlusCircle, XCircle, Sparkles } from 'lucide-react'; // Added Sparkles for interests
+import { useStore, User } from '../lib/store'; // Imported User type
 
 export function Onboarding() {
   const navigate = useNavigate();
-  const { updateProfile, addHabit } = useStore();
-  const [goals, setGoals] = useState('');
+  const { updateProfile, addHabit, user } = useStore(); // Added user to get existing interests if any
+  const [goals, setGoals] = useState(user?.goals || '');
   const [currentHabit, setCurrentHabit] = useState('');
   const [habitsList, setHabitsList] = useState<string[]>([]);
+  const [selectedInterests, setSelectedInterests] = useState<string[]>(user?.interests || []);
+
+  const availableInterests = ["Studying", "Exercise", "Meditation", "Reading", "Coding", "Music", "Art", "Travel", "Cooking", "Gaming"];
+
+  const handleInterestToggle = (interest: string) => {
+    setSelectedInterests(prev =>
+      prev.includes(interest)
+        ? prev.filter(i => i !== interest)
+        : [...prev, interest]
+    );
+  };
 
   const handleAddHabit = () => {
     if (currentHabit.trim() !== '' && !habitsList.includes(currentHabit.trim())) {
@@ -23,15 +34,20 @@ export function Onboarding() {
   };
 
   const handleSubmit = () => {
-    // Assuming user object exists and has an id.
-    // In a real app, you'd get the user from the store or context.
-    // For now, we'll assume updateProfile can handle partial updates without needing the full user object.
+    const profileUpdates: Partial<User> = {};
     if (goals.trim() !== '') {
-      updateProfile({ goals });
+      profileUpdates.goals = goals.trim();
+    }
+    if (selectedInterests.length > 0) {
+      profileUpdates.interests = selectedInterests;
+    }
+    
+    if (Object.keys(profileUpdates).length > 0) {
+        updateProfile(profileUpdates);
     }
 
     habitsList.forEach(habitName => {
-      addHabit({ name: habitName, completed: false }); // streak and lastCompleted will be set by addHabit
+      addHabit({ name: habitName, category: 'Other' });
     });
 
     navigate('/dashboard');
@@ -115,10 +131,35 @@ export function Onboarding() {
           />
         </motion.div>
 
+        {/* Interests Section */}
+        <motion.div className="mb-8" variants={itemVariants}>
+          <label className="block text-lg font-medium text-gray-700 mb-3">
+            What are your interests? <span className="text-sm text-gray-500">(Select a few)</span>
+          </label>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
+            {availableInterests.map((interest) => (
+              <motion.button
+                key={interest}
+                type="button"
+                onClick={() => handleInterestToggle(interest)}
+                className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all duration-200 ease-in-out border-2
+                  ${selectedInterests.includes(interest)
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
+                  }`}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {interest}
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Habits Section */}
         <motion.div className="mb-8" variants={itemVariants}>
           <label htmlFor="habit-input" className="block text-lg font-medium text-gray-700 mb-2">
-            What habits do you want to track?
+            What habits do you want to track? <span className="text-sm text-gray-500">(Optional)</span>
           </label>
           <div className="flex items-center gap-2 mb-3">
             <input

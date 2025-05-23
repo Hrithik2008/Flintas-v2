@@ -1,14 +1,75 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DailyQuote } from '../components/dashboard/DailyQuote';
 import { VisualWorld } from '../components/dashboard/VisualWorld';
 // Navigation is now handled globally in App.tsx
 import { HabitForm } from '../components/HabitForm';
 import { HabitList } from '../components/HabitList';
-import { useStore } from '../lib/store';
+import { useStore, fallbackDailyTasks, DailyTask } from '../lib/store';
+import { supabase } from '../lib/supabaseClient';
 
 export function Dashboard() {
   const user = useStore((state) => state.user);
+  const currentDailyTask = useStore((state) => state.currentDailyTask);
+  const setCurrentDailyTask = useStore((state) => state.setCurrentDailyTask);
+  const [isTaskCompleted, setIsTaskCompleted] = useState(false);
+  // TODO: Persist task completion status and reset daily
+
+  useEffect(() => {
+    const fetchOrSetDailyTask = async () => {
+      if (currentDailyTask) {
+        // Potentially add a check here to see if the task is for the current day
+        // For now, if a task exists, we assume it's the current one.
+        return;
+      }
+
+      if (!user) return; // Wait for user data
+
+      try {
+        const userContext: { interest?: string; goal?: string } = {};
+        if (user.interests && user.interests.length > 0) {
+          userContext.interest = user.interests[0];
+        }
+        if (user.goals) {
+          userContext.goal = user.goals;
+        }
+
+        const { data, error } = await supabase.functions.invoke('get-daily-task', {
+          body: userContext,
+        });
+
+        if (error) throw error;
+
+        if (data && data.task) {
+          setCurrentDailyTask({
+            id: `llm-${new Date().toISOString()}`, // Simple unique ID
+            text: data.task,
+            source: 'llm',
+          });
+        } else {
+          throw new Error("LLM did not return a task.");
+        }
+      } catch (err) {
+        console.warn("Failed to fetch LLM task, using fallback:", err);
+        const randomIndex = Math.floor(Math.random() * fallbackDailyTasks.length);
+        const fallbackTask = fallbackDailyTasks[randomIndex];
+        setCurrentDailyTask({
+          id: `fallback-${randomIndex}-${new Date().toISOString()}`,
+          text: fallbackTask.text,
+          category_tags: fallbackTask.category_tags,
+          source: 'fallback',
+        });
+      }
+    };
+
+    fetchOrSetDailyTask();
+  }, [user, currentDailyTask, setCurrentDailyTask]);
+
+  const handleCompleteTask = () => {
+    setIsTaskCompleted(true);
+    console.log("Daily task marked as completed:", currentDailyTask);
+    // Future: Integrate with XP/rewards system
+  };
 
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
@@ -30,6 +91,36 @@ export function Dashboard() {
           </h1>
           <p className="text-gray-600 mt-2 text-lg">Your journey continues, one step at a time.</p>
         </motion.header>
+
+        {/* Daily Task Card */}
+        {currentDailyTask && (
+          <motion.section
+            className="bg-white p-6 rounded-xl shadow-lg mb-8"
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: 0.15 }}
+          >
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-2xl font-semibold text-gray-800">Your Daily Task</h2>
+              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${currentDailyTask.source === 'llm' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                {currentDailyTask.source === 'llm' ? 'Personalized' : 'From Bank'}
+              </span>
+            </div>
+            <p className="text-gray-700 text-lg mb-4">{currentDailyTask.text}</p>
+            <button
+              onClick={handleCompleteTask}
+              disabled={isTaskCompleted}
+              className={`w-full px-4 py-2 rounded-md font-semibold transition-colors
+                ${isTaskCompleted
+                  ? 'bg-green-500 text-white cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                }`}
+            >
+              {isTaskCompleted ? 'Completed!' : 'Mark as Completed'}
+            </button>
+          </motion.section>
+        )}
 
         {/* User Goals Card */}
         {user?.goals && (
