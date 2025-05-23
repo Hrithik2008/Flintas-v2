@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { OpenAI } from "https://esm.sh/openai@4.20.0";
+import { serve } from "std/http/server.ts"; // Updated Deno standard library version
+import { OpenAI } from "openai"; // Consider updating to a newer version if issues arise or new features are needed.
 
 interface UserContext {
   interest?: string;
@@ -34,16 +34,19 @@ serve(async (req: Request) => {
 
     const openai = new OpenAI({ apiKey: openAIKey });
 
-    let promptContent = "Suggest one short, actionable daily task.";
+    // Construct the prompt based on available user context
+    let promptBase = "Suggest one short, actionable daily task";
     if (interest && goal) {
-      promptContent = `Suggest one short, actionable daily task for someone interested in "${interest}" and working towards the goal: "${goal}".`;
+      promptBase += ` for someone interested in "${interest}" and working towards the goal: "${goal}"`;
     } else if (interest) {
-      promptContent = `Suggest one short, actionable daily task for someone interested in "${interest}".`;
+      promptBase += ` for someone interested in "${interest}"`;
     } else if (goal) {
-      promptContent = `Suggest one short, actionable daily task for someone working towards the goal: "${goal}".`;
+      promptBase += ` for someone working towards the goal: "${goal}"`;
     }
-    
-    promptContent += " The task should be something that can be completed in 5-15 minutes. Be concise."
+    promptBase += "."; // Ensure the base prompt ends with a period.
+
+    // Append additional instructions for the task.
+    const promptContent = `${promptBase} The task should be something that can be completed in 5-15 minutes. Be concise.`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
