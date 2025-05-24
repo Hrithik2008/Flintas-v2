@@ -110,53 +110,54 @@ This document outlines the plan for developing a student-focused social applicat
 
 ```mermaid
 graph TD
-    A[User] --> B(React Frontend App);
+    A[User] --> B(React Frontend App)
 
     subgraph Frontend [Vite + React + TypeScript + Tailwind CSS]
-        B --> Router{React Router};
-        Router --> P_Auth [Auth Pages (Login, SignUp, Profile, Onboarding)];
-        Router --> P_Dashboard[Dashboard Page];
-        Router --> P_Habit[Habit Tracking Pages];
-        Router --> P_Social[Social Pages (Community, Groups, Forum)];
-        Router --> P_Events[Events/Extracurriculars Page];
-        Router --> P_Rewards[Rewards Page];
+        B --> Router{React Router}
+        Router --> P_Auth[Auth Pages (Login, SignUp, Profile, Onboarding)]
+        Router --> P_Dashboard[Dashboard Page]
+        Router --> P_Habit[Habit Tracking Pages]
+        Router --> P_Social[Social Pages (Community, Groups, Forum)]
+        Router --> P_Events[Events/Extracurriculars Page]
+        Router --> P_Rewards[Rewards Page]
 
-        P_Auth --> ZS[Zustand Global Store];
-        P_Dashboard --> ZS;
-        P_Habit --> ZS;
-        P_Social --> ZS;
-        P_Events --> ZS;
-        P_Rewards --> ZS;
+        P_Auth --> ZS[Zustand Global Store]
+        P_Dashboard --> ZS
+        P_Habit --> ZS
+        P_Social --> ZS
+        P_Events --> ZS
+        P_Rewards --> ZS
 
-        ZS --> SB_API_Client[Supabase API Client];
-        P_Dashboard --> LLM_Client[LLM API Client (for Daily Tasks)];
-        
+        ZS --> SB_API_Client[Supabase API Client]
+        P_Dashboard --> LLM_Client[LLM API Client (for Daily Tasks)]
     end
 
     subgraph BackendAsAService [Supabase]
-        SB_API_Client --> SB_Auth[Authentication Service];
-        SB_API_Client --> SB_DB[PostgreSQL Database Service];
-        SB_DB --> T_Users[Users Table (incl. interests, goals)];
-        SB_DB --> T_Habits[Habits Table];
-        SB_DB --> T_HabitProgress[Habit Progress Table];
-        SB_DB --> T_Groups[Groups Table];
-        SB_DB --> T_GroupMembers[Group Members Table];
-        SB_DB --> T_Posts[Forum/Group Posts Table];
-        SB_DB --> T_Events[Events Table];
-        SB_DB --> T_EventRSVPs[Event RSVPs Table];
-        SB_DB --> T_RewardsUser[User Rewards/Achievements Table (for Timeline)];
-        SB_DB --> T_DailyTaskBank[Daily Task Fallback Bank];
+        SB_API_Client --> SB_Auth[Authentication Service]
+        SB_API_Client --> SB_DB[PostgreSQL Database Service]
+
+        SB_DB --> T_Users[Users Table (incl. interests, goals)]
+        SB_DB --> T_Habits[Habits Table]
+        SB_DB --> T_HabitProgress[Habit Progress Table]
+        SB_DB --> T_Groups[Groups Table]
+        SB_DB --> T_GroupMembers[Group Members Table]
+        SB_DB --> T_Posts[Forum/Group Posts Table]
+        SB_DB --> T_Events[Events Table]
+        SB_DB --> T_EventRSVPs[Event RSVPs Table]
+        SB_DB --> T_RewardsUser[User Rewards/Achievements Table (for Timeline)]
+        SB_DB --> T_DailyTaskBank[Daily Task Fallback Bank]
     end
 
     subgraph ExternalServices
-        LLM_Client --> LLM_API[LLM Service API];
+        LLM_Client --> LLM_API[LLM Service API]
     end
 
-    P_Auth <--> SB_Auth;
-    P_Habit <--> SB_DB;
-    P_Social <--> SB_DB;
-    P_Events <--> SB_DB;
-    P_Rewards <--> SB_DB;
+    P_Auth <--> SB_Auth
+    P_Habit <--> SB_DB
+    P_Social <--> SB_DB
+    P_Events <--> SB_DB
+    P_Rewards <--> SB_DB
+
 ```
 
 This plan aims to create an engaging and supportive platform for students.
