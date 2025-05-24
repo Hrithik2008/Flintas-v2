@@ -114,22 +114,7 @@ graph TD
 
     subgraph Frontend [Vite + React + TypeScript + Tailwind CSS]
         B --> Router{React Router};
-        Router --> P_Auth[Auth Pages (Login, SignUp, Profile, Onboarding)];
-        Router --> P_Dashboard[Dashboard Page];
-        Router --> P_Habit[Habit Tracking Pages];
-        Router --> P_Social[Social Pages (Community, Groups, Forum)];
-        Router --> P_Events[Events/Extracurriculars Page];
-        Router --> P_Rewards[Rewards Page];
-
-        P_Auth --> ZS[Zustand Global Store];
-        P_Dashboard --> ZS;
-        P_Habit --> ZS;
-        P_Social --> ZS;
-        P_Events --> ZS;
-        P_Rewards --> ZS;
-
-        ZS --> SB_API_Client[Supabase API Client];
-        P_Dashboard --> LLM_Client[LLM API Client (for Daily Tasks)];
+        
     end
 
     subgraph BackendAsAService [Supabase]
