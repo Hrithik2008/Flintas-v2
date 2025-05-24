@@ -114,11 +114,11 @@ graph TD
 
     subgraph Frontend [Vite + React + TypeScript + Tailwind CSS]
         B --> Router{React Router}
-        Router --> P_Auth[Auth Pages (Login, SignUp, Profile, Onboarding)]
+        Router --> P_Auth[Auth Pages<br>Login, SignUp, Profile, Onboarding]
         Router --> P_Dashboard[Dashboard Page]
         Router --> P_Habit[Habit Tracking Pages]
-        Router --> P_Social[Social Pages (Community, Groups, Forum)]
-        Router --> P_Events[Events/Extracurriculars Page]
+        Router --> P_Social[Social Pages<br>Community, Groups, Forum]
+        Router --> P_Events[Events / Extracurriculars Page]
         Router --> P_Rewards[Rewards Page]
 
         P_Auth --> ZS[Zustand Global Store]
@@ -129,22 +129,22 @@ graph TD
         P_Rewards --> ZS
 
         ZS --> SB_API_Client[Supabase API Client]
-        P_Dashboard --> LLM_Client[LLM API Client (for Daily Tasks)]
+        P_Dashboard --> LLM_Client[LLM API Client<br>for Daily Tasks]
     end
 
     subgraph BackendAsAService [Supabase]
         SB_API_Client --> SB_Auth[Authentication Service]
         SB_API_Client --> SB_DB[PostgreSQL Database Service]
 
-        SB_DB --> T_Users[Users Table (incl. interests, goals)]
+        SB_DB --> T_Users[Users Table<br>incl. interests, goals]
         SB_DB --> T_Habits[Habits Table]
         SB_DB --> T_HabitProgress[Habit Progress Table]
         SB_DB --> T_Groups[Groups Table]
         SB_DB --> T_GroupMembers[Group Members Table]
-        SB_DB --> T_Posts[Forum/Group Posts Table]
+        SB_DB --> T_Posts[Forum / Group Posts Table]
         SB_DB --> T_Events[Events Table]
         SB_DB --> T_EventRSVPs[Event RSVPs Table]
-        SB_DB --> T_RewardsUser[User Rewards/Achievements Table (for Timeline)]
+        SB_DB --> T_RewardsUser[User Rewards / Achievements Table<br>for Timeline]
         SB_DB --> T_DailyTaskBank[Daily Task Fallback Bank]
     end
 
@@ -157,6 +157,7 @@ graph TD
     P_Social <--> SB_DB
     P_Events <--> SB_DB
     P_Rewards <--> SB_DB
+
 
 ```
 
